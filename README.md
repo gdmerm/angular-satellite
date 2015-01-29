@@ -8,9 +8,8 @@ An angular publish / subscribe library that promotes event channels as duck-type
 
  For example
 
- ===========================
- Without Angular Satellite
- ===========================
+ 
+ ## Without Angular Satellite
 ```javascript
        //content of myController.js
        function myController($scope, $rootScope) {
@@ -33,9 +32,8 @@ An angular publish / subscribe library that promotes event channels as duck-type
        }
 ```
 
- ===========================
- With Angular Satellite 
- ===========================
+ 
+ ##With Angular Satellite
  ```javascript
        //content of myController.js
        function myController($scope, Satellite) {
