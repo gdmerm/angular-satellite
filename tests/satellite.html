@@ -23,6 +23,10 @@
         }]).
         controller('mainController', ['Satellite', '$scope', '$rootScope', function (satellite, $scope, $rootScope) {
             satellite.setupEvent('facet', 'applyFilter');
+            satellite.setupEvent('facet', 'deleteFilter');
+            satellite.setupEvent('popup', 'exit');
+            satellite.setupEvent('facet', 'updateUrl');
+
             $scope.applyFilter = function () {
                 satellite.facet.publish.applyFilter('year');    
             };
@@ -36,7 +40,16 @@
                     satellite.facet.subscribe.applyFilter($scope, function (filter) {
                         $scope.filter = filter;
                     });
-                    console.log(satellite.listSubscriberMethods('facet'));
+                    satellite.popup.subscribe.exit(function () {});
+                    satellite.facet.subscribe.updateUrl(function () {});
+                    console.log('it should have 2 sibscriptions:', satellite.listeners);
+
+                    satellite.removeSubscription('facet', 'updateUrl');
+                    console.log('it should have 1 subscription under facet:applyFilter', satellite.listeners);
+
+                    satellite.removePublisher('popup');
+
+                    console.log(satellite)
                 }]
             };
         }]);

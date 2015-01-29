@@ -145,11 +145,10 @@ provider('Satellite', function () {
                     var feature;
                     var eventId;
                     var on, raise;
-                    self.listeners = [];
 
                     //create the event namespace if not exist
                     if (!self[namespace]) {
-                        self[namespace] = {};
+                        self[namespace] = {_publisherName: namespace};
                     }
 
                     //create the pub / sub methods
@@ -181,6 +180,10 @@ provider('Satellite', function () {
                             _handler = scope;
                              scope = $rootScope;
                              handler = _handler;
+                        } else {
+                            scope.$on('$destroy', function () {
+                                dereg();
+                            });
                         }
                         dereg = _registerEvent(scope, eventId, handler, self);
 
@@ -217,7 +220,56 @@ provider('Satellite', function () {
                        if (subscriber === listener.eventId.split(':')[0]) memo.push(listener.eventId.split(':')[1]);
                        return memo;
                     }, []);
+                },
+
+
+                /**
+                 * removes a subscription "method" under a namespace "publisher"
+                 * @param  {[type]} publisher [description]
+                 * @param  {[type]} method     [description]
+                 */
+                removeSubscription: function (publisher, method) {
+                    var listeners = this.listeners;
+                    for(var i = listeners.length - 1; i >= 0; i--) {
+                        if (listeners[i].eventId.split(':')[0] === publisher && listeners[i].eventId.split(':')[1] === method) {
+                            listeners[i].dereg();
+                            listeners.splice(i, 1);
+                        }
+                    }
+                },
+
+                /**
+                 * remove all subscriptions under a given publisher name
+                 * @param  {[type]} publisher [description]
+                 * @return {[type]}           [description]
+                 */
+                removeAllSubscriptions: function (publisher) {
+                    var listeners = this.listeners;
+                    for (var i = listeners.length - 1; i >= 0; i--) {
+                        if (listeners[i].eventId.split(':')[0] === publisher) {
+                            listeners[i].dereg();
+                            listeners.splice(i, 1);
+                        }
+                    }
+                },
+
+                /**
+                 * remove a publisher along with any of his subscriptions
+                 * @param  {[type]} publisherName [description]
+                 * @return {[type]}               [description]
+                 */
+                removePublisher: function (publisherName) {
+                    var self = this;
+                    var listeners = self.listeners;
+                    if (angular.isDefined(self[publisherName])) {
+                        delete self[publisherName]
+                    }
+
+                    //remove any subscriptions for this publisher
+                    self.removeAllSubscriptions(publisherName);
                 }
+
+
             };
         }]
     };
