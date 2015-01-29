@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../bower_components/angularjs/angular.js"></script>
+        <script src="../js/angular-satellite.js"></script>
+    </head>
+
+    <body ng-app="SatelliteTestRunner">
+
+        <div class="container" ng-controller="mainController">
+            <h1>Angular Radio Tests</h1>
+
+            <button ng-click="applyFilter()">Apply Filter</button>
+
+            <div receiver></div>
+        </div>
+
+        <script>
+        //Start radio tests
+        angular.module('SatelliteTestRunner', ['gm.Satellite']).
+        config(['SatelliteProvider', function (SatelliteProvider) {
+            SatelliteProvider.setEventMethods('subscribe', 'publish');
+        }]).
+        controller('mainController', ['Satellite', '$scope', '$rootScope', function (satellite, $scope, $rootScope) {
+            satellite.setupEvent('facet', 'applyFilter');
+            $scope.applyFilter = function () {
+                satellite.facet.publish.applyFilter('year');    
+            };
+        }]).
+        directive('receiver', ['Satellite', function (satellite) {
+            return {
+                restrict: 'A',
+                template: '<div>{{ filter }}</div>',
+                scope: {},
+                controller: ['$scope', '$element', '$attrs', '$transclude', function ($scope, $element, $attrs, $transclude) {
+                    satellite.facet.subscribe.applyFilter($scope, function (filter) {
+                        $scope.filter = filter;
+                    });
+                    console.log(satellite.listSubscriberMethods('facet'));
+                }]
+            };
+        }]);
+        
+        </script>
+    </body>
+</html>
