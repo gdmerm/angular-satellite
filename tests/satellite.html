@@ -27,8 +27,12 @@
             satellite.setupEvent('popup', 'exit');
             satellite.setupEvent('facet', 'updateUrl');
 
+            var filterfn = function () {
+                console.log('a filter function');
+            };
+
             $scope.applyFilter = function () {
-                satellite.facet.publish.applyFilter('year');    
+                satellite.facet.publish.applyFilter(filterfn, 'year'); 
             };
         }]).
         directive('receiver', ['Satellite', function (satellite) {
@@ -37,18 +41,16 @@
                 template: '<div>{{ filter }}</div>',
                 scope: {},
                 controller: ['$scope', '$element', '$attrs', '$transclude', function ($scope, $element, $attrs, $transclude) {
-                    satellite.facet.subscribe.applyFilter($scope, function (filter) {
+                    satellite.facet.subscribe.applyFilter($scope, function (filterfn, filter) {
                         $scope.filter = filter;
+                        filterfn();
                     });
+
                     satellite.popup.subscribe.exit(function () {});
                     satellite.facet.subscribe.updateUrl(function () {});
-                    console.log('it should have 2 sibscriptions:', satellite.listeners);
-
-                    satellite.removeSubscription('facet', 'updateUrl');
-                    console.log('it should have 1 subscription under facet:applyFilter', satellite.listeners);
-
-                    satellite.removePublisher('popup');
-
+                    satellite.removeTransponder('popup');
+                    console.log(satellite.listTransponders());
+                    console.log(satellite.listTransmissions('facet'));
                     console.log(satellite)
                 }]
             };

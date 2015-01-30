@@ -148,7 +148,7 @@ provider('Satellite', function () {
 
                     //create the event namespace if not exist
                     if (!self[namespace]) {
-                        self[namespace] = {_publisherName: namespace};
+                        self[namespace] = {_transponder: namespace};
                     }
 
                     //create the pub / sub methods
@@ -200,14 +200,25 @@ provider('Satellite', function () {
                 }, //setupEvent
 
                 /**
+                 * todo: a transponder should be reported even if no transmission channels exist
                  * list the event subscription namespaces
                  * @return {array} a list of subscribers
                  */
-                listSubscribers: function () {
+                listTransponders: function () {
                     return this.listeners.reduce(function(memo, listener, index, array) {
-                        memo.push(listener.eventId.split(':')[0]);
+                        var _transponder = listener.eventId.split(':')[0];
+                        if (memo.indexOf(_transponder) < 0) { memo.push(_transponder); }
                         return memo;
                     }, []);
+                },
+
+                /**
+                 * returns a transponder object on which transmittions, receptions can be applied
+                 * @param  {string} tname - the transponder name
+                 * @return {object} - a transponder object with pub / syb methods
+                 */
+                transponder: function (tname) {
+                    return this[tname];
                 },
 
                 /**
@@ -215,7 +226,7 @@ provider('Satellite', function () {
                  * @param  {string} subscriber - an event namespace
                  * @return {array} - a list of available method subscriptions under this namespace
                  */
-                listSubscriberMethods: function (subscriber) {
+                listTransmissions: function (subscriber) {
                     return this.listeners.reduce(function (memo, listener) {
                        if (subscriber === listener.eventId.split(':')[0]) memo.push(listener.eventId.split(':')[1]);
                        return memo;
@@ -228,7 +239,7 @@ provider('Satellite', function () {
                  * @param  {[type]} publisher [description]
                  * @param  {[type]} method     [description]
                  */
-                removeSubscription: function (publisher, method) {
+                removeTransmission: function (publisher, method) {
                     var listeners = this.listeners;
                     for(var i = listeners.length - 1; i >= 0; i--) {
                         if (listeners[i].eventId.split(':')[0] === publisher && listeners[i].eventId.split(':')[1] === method) {
@@ -243,7 +254,7 @@ provider('Satellite', function () {
                  * @param  {[type]} publisher [description]
                  * @return {[type]}           [description]
                  */
-                removeAllSubscriptions: function (publisher) {
+                removeTransmissions: function (publisher) {
                     var listeners = this.listeners;
                     for (var i = listeners.length - 1; i >= 0; i--) {
                         if (listeners[i].eventId.split(':')[0] === publisher) {
@@ -258,15 +269,15 @@ provider('Satellite', function () {
                  * @param  {[type]} publisherName [description]
                  * @return {[type]}               [description]
                  */
-                removePublisher: function (publisherName) {
+                removeTransponder: function (publisherName) {
                     var self = this;
                     var listeners = self.listeners;
                     if (angular.isDefined(self[publisherName])) {
-                        delete self[publisherName]
+                        delete self[publisherName];
                     }
 
                     //remove any subscriptions for this publisher
-                    self.removeAllSubscriptions(publisherName);
+                    self.removeTransmissions(publisherName);
                 }
 
 
