@@ -19,20 +19,20 @@
         //Start radio tests
         angular.module('SatelliteTestRunner', ['gm.Satellite']).
         config(['SatelliteProvider', function (SatelliteProvider) {
-            SatelliteProvider.setEventMethods('subscribe', 'publish');
+            //SatelliteProvider.setEventMethods('subscribe', 'publish');
         }]).
         controller('mainController', ['Satellite', '$scope', '$rootScope', function (satellite, $scope, $rootScope) {
-            satellite.setupEvent('facet', 'applyFilter');
-            satellite.setupEvent('facet', 'deleteFilter');
-            satellite.setupEvent('popup', 'exit');
-            satellite.setupEvent('facet', 'updateUrl');
+            satellite.setupTransponder('facet', 'applyFilter');
+            satellite.setupTransponder('facet', 'deleteFilter');
+            satellite.setupTransponder('popup', 'exit');
+            satellite.setupTransponder('facet', 'updateUrl');
 
             var filterfn = function () {
                 console.log('a filter function');
             };
 
             $scope.applyFilter = function () {
-                satellite.facet.publish.applyFilter(filterfn, 'year'); 
+                satellite.facet.transmit.applyFilter(filterfn, 'year'); 
             };
         }]).
         directive('receiver', ['Satellite', function (satellite) {
@@ -41,13 +41,13 @@
                 template: '<div>{{ filter }}</div>',
                 scope: {},
                 controller: ['$scope', '$element', '$attrs', '$transclude', function ($scope, $element, $attrs, $transclude) {
-                    satellite.facet.subscribe.applyFilter($scope, function (filterfn, filter) {
+                    satellite.facet.receive.applyFilter($scope, function (filterfn, filter) {
                         $scope.filter = filter;
                         filterfn();
                     });
 
-                    satellite.popup.subscribe.exit(function () {});
-                    satellite.facet.subscribe.updateUrl(function () {});
+                    satellite.popup.receive.exit(function () {});
+                    satellite.facet.receive.updateUrl(function () {});
                     satellite.removeTransponder('popup');
                     console.log(satellite.listTransponders());
                     console.log(satellite.listTransmissions('facet'));

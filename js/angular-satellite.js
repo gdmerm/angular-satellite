@@ -84,7 +84,7 @@ provider('Satellite', function () {
       * holds the names for our publish / subscribe methods
       * @private @type {Array}
       */
-     var satelliteMethods = ['on', 'raise'];
+     var satelliteMethods = ['receive', 'transmit'];
 
      /**
       * @private
@@ -140,7 +140,7 @@ provider('Satellite', function () {
                  * @return {SatelliteInstance} - the injected instance from angular's $injector    
                  * @this refers to the injected instance
                  */
-                setupEvent: function (namespace, eventName) {
+                setupTransponder: function (namespace, eventName) {
                     var self = this;
                     var feature;
                     var eventId;
