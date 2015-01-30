@@ -37,9 +37,10 @@ An angular publish / subscribe library that promotes event channels as duck-type
  ```javascript
        //content of myController.js
        function myController($scope, Satellite) {
-           Satellite.setupEvent('popup', 'exit');
+           Satellite.setupTransponder('popup', 'exit');
+           var clean = function () {//...do some cleanup}
            $scope.exit = function () {
-               Satellite.popup.raise.exit(clean)
+               Satellite.popup.transmit.exit(clean)
            }
        }
 
@@ -48,7 +49,7 @@ An angular publish / subscribe library that promotes event channels as duck-type
            return {
                restrict: 'A',
                link: function () {
-                   Satellite.popup.on.exit(function (cleanUp) {
+                   Satellite.popup.receive.exit(function (cleanUp) {
                        cleanUp() //do some cleanup
                    })
                }
